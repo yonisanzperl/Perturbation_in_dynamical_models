@@ -1,0 +1,273 @@
+[1mdiff --git a/Addtopath/Utils/chello.m b/Addtopath/Utils/chello.m[m
+[1mnew file mode 100644[m
+[1mindex 0000000..5b1632f[m
+[1m--- /dev/null[m
+[1m+++ b/Addtopath/Utils/chello.m[m
+[36m@@ -0,0 +1,266 @@[m
+[32m+[m[32m%__________________________________________________________________________[m
+[32m+[m[32m% violin.m - Simple violin plot using matlab default kernel density estimation[m
+[32m+[m[32m% Last update: 10/2015[m
+[32m+[m[32m%__________________________________________________________________________[m
+[32m+[m[32m% This function creates violin plots based on kernel density estimation[m
+[32m+[m[32m% using ksdensity with default settings. Please be careful when comparing pdfs[m
+[32m+[m[32m% estimated with different bandwidth![m
+[32m+[m[32m%[m
+[32m+[m[32m% Differently to other boxplot functions, you may specify the x-position.[m
+[32m+[m[32m% This is usefule when overlaying with other data / plots.[m
+[32m+[m[32m%__________________________________________________________________________[m
+[32m+[m[32m%[m
+[32m+[m[32m% Please cite this function as:[m
+[32m+[m[32m% Hoffmann H, 2015: violin.m - Simple violin plot using matlab default kernel[m
+[32m+[m[32m% density estimation. INRES (University of Bonn), Katzenburgweg 5, 53115 Germany.[m
+[32m+[m[32m% hhoffmann@uni-bonn.de[m
+[32m+[m[32m%[m
+[32m+[m[32m%__________________________________________________________________________[m
+[32m+[m[32m%[m
+[32m+[m[32m% INPUT[m
+[32m+[m[32m%[m
+[32m+[m[32m% Y:     Data to be plotted, being either[m
+[32m+[m[32m%        a) n x m matrix. A 'violin' is plotted for each column m, OR[m
+[32m+[m[32m%        b) 1 x m Cellarry with elements being numerical colums of nx1 length.[m
+[32m+[m[32m%[m
+[32m+[m[32m% varargin:[m
+[32m+[m[32m% xlabel:    xlabel. Set either [] or in the form {'txt1','txt2','txt3',...}[m
+[32m+[m[32m% facecolor: FaceColor. (default [1 0.5 0]); Specify abbrev. or m x 3 matrix (e.g. [1 0 0])[m
+[32m+[m[32m% edgecolor: LineColor. (default 'k'); Specify abbrev. (e.g. 'k' for black); set either [],'' or 'none' if the mean should not be plotted[m
+[32m+[m[32m% facealpha: Alpha value (transparency). default: 0.5[m
+[32m+[m[32m% mc:        Color of the bars indicating the mean. (default 'k'); set either [],'' or 'none' if the mean should not be plotted[m
+[32m+[m[32m% medc:      Color of the bars indicating the median. (default 'r'); set either [],'' or 'none' if the mean should not be plotted[m
+[32m+[m[32m% bw:        Kernel bandwidth. (default []); prescribe if wanted as follows:[m
+[32m+[m[32m%            a) if bw is a single number, bw will be applied to all[m
+[32m+[m[32m%            columns or cells[m
+[32m+[m[32m%            b) if bw is an array of 1xm or mx1, bw(i) will be applied to cell or column (i).[m
+[32m+[m[32m%            c) if bw is empty (default []), the optimal bandwidth for[m
+[32m+[m[32m%            gaussian kernel is used (see Matlab documentation for[m
+[32m+[m[32m%            ksdensity()[m
+[32m+[m[32m%[m
+[32m+[m[32m% OUTPUT[m
+[32m+[m[32m%[m
+[32m+[m[32m% h:     figure handle[m
+[32m+[m[32m% L:     Legend handle[m
+[32m+[m[32m% MX:    Means of groups[m
+[32m+[m[32m% MED:   Medians of groups[m
+[32m+[m[32m% bw:    bandwidth of kernel[m
+[32m+[m[32m%__________________________________________________________________________[m
+[32m+[m[32m%{[m
+[32m+[m[32m% Example1 (default):[m
+[32m+[m
+[32m+[m[32mdisp('this example uses the statistical toolbox')[m
+[32m+[m[32mY=[rand(1000,1),gamrnd(1,2,1000,1),normrnd(10,2,1000,1),gamrnd(10,0.1,1000,1)];[m
+[32m+[m[32m[h,L,MX,MED]=violin(Y);[m
+[32m+[m[32mylabel('\Delta [yesno^{-2}]','FontSize',14)[m
+[32m+[m
+[32m+[m[32m%Example2 (specify facecolor, edgecolor, xlabel):[m
+[32m+[m
+[32m+[m[32mdisp('this example uses the statistical toolbox')[m
+[32m+[m[32mY=[rand(1000,1),gamrnd(1,2,1000,1),normrnd(10,2,1000,1),gamrnd(10,0.1,1000,1)];[m
+[32m+[m[32mviolin(Y,'xlabel',{'a','b','c','d'},'facecolor',[1 1 0;0 1 0;.3 .3 .3;0 0.3 0.1],'edgecolor','b',...[m
+[32m+[m[32m'bw',0.3,...[m
+[32m+[m[32m'mc','k',...[m
+[32m+[m[32m'medc','r--')[m
+[32m+[m[32mylabel('\Delta [yesno^{-2}]','FontSize',14)[m
+[32m+[m
+[32m+[m[32m%Example3 (specify x axis location):[m
+[32m+[m
+[32m+[m[32mdisp('this example uses the statistical toolbox')[m
+[32m+[m[32mY=[rand(1000,1),gamrnd(1,2,1000,1),normrnd(10,2,1000,1),gamrnd(10,0.1,1000,1)];[m
+[32m+[m[32mviolin(Y,'x',[-1 .7 3.4 8.8],'facecolor',[1 1 0;0 1 0;.3 .3 .3;0 0.3 0.1],'edgecolor','none',...[m
+[32m+[m[32m'bw',0.3,'mc','k','medc','r-.')[m
+[32m+[m[32maxis([-2 10 -0.5 20])[m
+[32m+[m[32mylabel('\Delta [yesno^{-2}]','FontSize',14)[m
+[32m+[m
+[32m+[m[32m%Example4 (Give data as cells with different n):[m
+[32m+[m
+[32m+[m[32mdisp('this example uses the statistical toolbox')[m
+[32m+[m
+[32m+[m[32mY{:,1}=rand(10,1);[m
+[32m+[m[32mY{:,2}=rand(1000,1);[m
+[32m+[m[32mviolin(Y,'facecolor',[1 1 0;0 1 0;.3 .3 .3;0 0.3 0.1],'edgecolor','none','bw',0.1,'mc','k','medc','r-.')[m
+[32m+[m[32mylabel('\Delta [yesno^{-2}]','FontSize',14)[m
+[32m+[m[32m%}[m
+[32m+[m[32m%%[m
+[32m+[m[32mfunction[h,L,MX,MED,bw]=violin(Y,varargin)[m
+[32m+[m
+[32m+[m[32m%defaults:[m
+[32m+[m[32m%_____________________[m
+[32m+[m[32mxL=[];[m
+[32m+[m[32mfc=[1 0.5 0];[m
+[32m+[m[32mlc='k';[m
+[32m+[m[32malp=0.5;[m
+[32m+[m[32mmc='k';[m
+[32m+[m[32mmedc='r';[m
+[32m+[m[32mb=[]; %bandwidth[m
+[32m+[m[32mplotlegend=1;[m
+[32m+[m[32mplotmean=1;[m
+[32m+[m[32mplotmedian=1;[m
+[32m+[m[32mx = [];[m
+[32m+[m[32m%_____________________[m
+[32m+[m
+[32m+[m[32m%convert single columns to cells:[m
+[32m+[m[32mif iscell(Y)==0[m
+[32m+[m[32m    Y = num2cell(Y,1);[m
+[32m+[m[32mend[m
+[32m+[m
+[32m+[m[32m%get additional input parameters (varargin)[m
+[32m+[m[32mif isempty(find(strcmp(varargin,'xlabel')))==0[m
+[32m+[m[32m    xL = varargin{find(strcmp(varargin,'xlabel'))+1};[m
+[32m+[m[32mend[m
+[32m+[m[32mif isempty(find(strcmp(varargin,'facecolor')))==0[m
+[32m+[m[32m    fc = varargin{find(strcmp(varargin,'facecolor'))+1};[m
+[32m+[m[32mend[m
+[32m+[m[32mif isempty(find(strcmp(varargin,'edgecolor')))==0[m
+[32m+[m[32m    lc = varargin{find(strcmp(varargin,'edgecolor'))+1};[m
+[32m+[m[32mend[m
+[32m+[m[32mif isempty(find(strcmp(varargin,'facealpha')))==0[m
+[32m+[m[32m    alp = varargin{find(strcmp(varargin,'facealpha'))+1};[m
+[32m+[m[32mend[m
+[32m+[m[32mif isempty(find(strcmp(varargin,'mc')))==0[m
+[32m+[m[32m    if isempty(varargin{find(strcmp(varargin,'mc'))+1})==0[m
+[32m+[m[32m        mc = varargin{find(strcmp(varargin,'mc'))+1};[m
+[32m+[m[32m        plotmean = 1;[m
+[32m+[m[32m    else[m
+[32m+[m[32m        plotmean = 0;[m
+[32m+[m[32m    end[m
+[32m+[m[32mend[m
+[32m+[m[32mif isempty(find(strcmp(varargin,'medc')))==0[m
+[32m+[m[32m    if isempty(varargin{find(strcmp(varargin,'medc'))+1})==0[m
+[32m+[m[32m        medc = varargin{find(strcmp(varargin,'medc'))+1};[m
+[32m+[m[32m        plotmedian = 1;[m
+[32m+[m[32m    else[m
+[32m+[m[32m        plotmedian = 0;[m
+[32m+[m[32m    end[m
+[32m+[m[32mend[m
+[32m+[m[32mif isempty(find(strcmp(varargin,'bw')))==0[m
+[32m+[m[32m    b = varargin{find(strcmp(varargin,'bw'))+1}[m
+[32m+[m[32m    if length(b)==1[m
+[32m+[m[32m        disp(['same bandwidth bw = ',num2str(b),' used for all cols'])[m
+[32m+[m[32m        b=repmat(b,size(Y,2),1);[m
+[32m+[m[32m    elseif length(b)~=size(Y,2)[m
+[32m+[m[32m        warning('length(b)~=size(Y,2)')[m
+[32m+[m[32m        error('please provide only one bandwidth or an array of b with same length as columns in the data set')[m
+[32m+[m[32m    end[m
+[32m+[m[32mend[m
+[32m+[m[32mif isempty(find(strcmp(varargin,'plotlegend')))==0[m
+[32m+[m[32m    plotlegend = varargin{find(strcmp(varargin,'plotlegend'))+1};[m
+[32m+[m[32mend[m
+[32m+[m[32mif isempty(find(strcmp(varargin,'x')))==0[m
+[32m+[m[32m    x = varargin{find(strcmp(varargin,'x'))+1};[m
+[32m+[m[32mend[m
+[32m+[m[32m%%[m
+[32m+[m[32mif size(fc,1)==1[m
+[32m+[m[32m    fc=repmat(fc,size(Y,2),1);[m
+[32m+[m[32mend[m
+[32m+[m
+[32m+[m[32m%% Calculate the kernel density[m
+[32m+[m[32mi=1;[m
+[32m+[m[32mfor i=1:size(Y,2)[m
+[32m+[m[41m    [m
+[32m+[m[32m    if isempty(b)==0[m
+[32m+[m[32m        [f, u, bb]=ksdensity(Y{i},'bandwidth',b(i));[m
+[32m+[m[32m    elseif isempty(b)[m
+[32m+[m[32m        [f, u, bb]=ksdensity(Y{i});[m
+[32m+[m[32m    end[m
+[32m+[m[41m    [m
+[32m+[m[32m    f=f/max(f)*0.3; %normalize[m
+[32m+[m[32m    F(:,i)=f;[m
+[32m+[m[32m    U(:,i)=u;[m
+[32m+[m[32m    MED(:,i)=nanmedian(Y{i});[m
+[32m+[m[32m    MX(:,i)=nanmean(Y{i});[m
+[32m+[m[32m    bw(:,i)=bb;[m
+[32m+[m[41m    [m
+[32m+[m[32mend[m
+[32m+[m[32m%%[m
+[32m+[m[32m%-------------------------------------------------------------------------[m
+[32m+[m[32m% Put the figure automatically on a second monitor[m
+[32m+[m[32m% mp = get(0, 'MonitorPositions');[m
+[32m+[m[32m% set(gcf,'Color','w','Position',[mp(end,1)+50 mp(end,2)+50 800 600])[m
+[32m+[m[32m%-------------------------------------------------------------------------[m
+[32m+[m[32m%Check x-value options[m
+[32m+[m[32mif isempty(x)[m
+[32m+[m[32m    x = zeros(size(Y,2));[m
+[32m+[m[32m    setX = 0;[m
+[32m+[m[32melse[m
+[32m+[m[32m    setX = 1;[m
+[32m+[m[32m    if isempty(xL)==0[m
+[32m+[m[32m        disp('_________________________________________________________________')[m
+[32m+[m[32m        warning('Function is not designed for x-axis specification with string label')[m
+[32m+[m[32m        warning('when providing x, xlabel can be set later anyway')[m
+[32m+[m[32m        error('please provide either x or xlabel. not both.')[m
+[32m+[m[32m    end[m
+[32m+[m[32mend[m
+[32m+[m
+[32m+[m[32m%% Plot the violins[m
+[32m+[m[32mi=1;[m
+[32m+[m[32mfor i=i:size(Y,2)[m
+[32m+[m[32m    if isempty(lc) == 1[m
+[32m+[m[32m        if setX == 0[m
+[32m+[m[32m            h(i)=fill([F(:,i)+i;flipud(i-F(:,i))],[U(:,i);flipud(U(:,i))],fc(i,:),'FaceAlpha',alp,'EdgeColor','none');[m
+[32m+[m[32m        else[m
+[32m+[m[32m            h(i)=fill([F(:,i)+x(i);flipud(x(i)-F(:,i))],[U(:,i);flipud(U(:,i))],fc(i,:),'FaceAlpha',alp,'EdgeColor','none');[m
+[32m+[m[32m        end[m
+[32m+[m[32m    else[m
+[32m+[m[32m        if setX == 0[m
+[32m+[m[32m            h(i)=fill([F(:,i)+i;flipud(i-F(:,i))],[U(:,i);flipud(U(:,i))],fc(i,:),'FaceAlpha',alp,'EdgeColor',lc);[m
+[32m+[m[32m        else[m
+[32m+[m[32m            h(i)=fill([F(:,i)+x(i);flipud(x(i)-F(:,i))],[U(:,i);flipud(U(:,i))],fc(i,:),'FaceAlpha',alp,'EdgeColor',lc);[m
+[32m+[m[32m        end[m
+[32m+[m[32m    end[m
+[32m+[m[32m    hold on[m
+[32m+[m[32m    if setX == 0[m
+[32m+[m[32m        if plotmean == 1[m
+[32m+[m[32m            p(1)=plot([interp1(U(:,i),F(:,i)+i,MX(:,i)), interp1(flipud(U(:,i)),flipud(i-F(:,i)),MX(:,i)) ],[MX(:,i) MX(:,i)],mc,'LineWidth',2);[m
+[32m+[m[32m        end[m
+[32m+[m[32m        if plotmedian == 1[m
+[32m+[m[32m            p(2)=plot([interp1(U(:,i),F(:,i)+i,MED(:,i)), interp1(flipud(U(:,i)),flipud(i-F(:,i)),MED(:,i)) ],[MED(:,i) MED(:,i)],medc,'LineWidth',2);[m
+[32m+[m[32m        end[m
+[32m+[m[32m    elseif setX == 1[m
+[32m+[m[32m        if plotmean == 1[m
+[32m+[m[32m            p(1)=plot([interp1(U(:,i),F(:,i)+i,MX(:,i))+x(i)-i, interp1(flipud(U(:,i)),flipud(i-F(:,i)),MX(:,i))+x(i)-i],[MX(:,i) MX(:,i)],mc,'LineWidth',2);[m
+[32m+[m[32m        end[m
+[32m+[m[32m        if plotmedian == 1[m
+[32m+[m[32m            p(2)=plot([interp1(U(:,i),F(:,i)+i,MED(:,i))+x(i)-i, interp1(flipud(U(:,i)),flipud(i-F(:,i)),MED(:,i))+x(i)-i],[MED(:,i) MED(:,i)],medc,'LineWidth',2);[m
+[32m+[m[32m        end[m
+[32m+[m[32m    end[m
+[32m+[m[32mend[m
+[32m+[m
+[32m+[m[32m%% Add legend if requested[m
+[32m+[m[32m% if plotlegend==1 & plotmean==1 | plotlegend==1 & plotmedian==1[m
+[32m+[m[32m%[m[41m     [m
+[32m+[m[32m%     if plotmean==1 & plotmedian==1[m
+[32m+[m[32m%         L=legend([p(1) p(2)],'Mean','Median');[m
+[32m+[m[32m%     elseif plotmean==0 & plotmedian==1[m
+[32m+[m[32m%         L=legend([p(2)],'Median');[m
+[32m+[m[32m%     elseif plotmean==1 & plotmedian==0[m
+[32m+[m[32m%         L=legend([p(1)],'Mean');[m
+[32m+[m[32m%     end[m
+[32m+[m[32m%[m[41m     [m
+[32m+[m[32m%     set(L,'box','off','FontSize',14)[m
+[32m+[m[32m% else[m
+[32m+[m[32m%     L=[];[m
+[32m+[m[32m% end[m
+[32m+[m
+[32m+[m[32m%% Set axis[m
+[32m+[m[32mif setX == 0[m
+[32m+[m[32m    axis([0.5 size(Y,2)+0.5, min(U(:)) max(U(:))]);[m
+[32m+[m[32melseif setX == 1[m
+[32m+[m[32m    axis([min(x)-0.05*range(x) max(x)+0.05*range(x), min(U(:)) max(U(:))]);[m
+[32m+[m[32mend[m
+[32m+[m
+[32m+[m[32m%% Set x-labels[m
+[32m+[m[32mxL2={''};[m
+[32m+[m[32mi=1;[m
+[32m+[m[32mfor i=1:size(xL,2)[m
+[32m+[m[32m    xL2=[xL2,xL{i},{''}];[m
+[32m+[m[32mend[m
+[32m+[m[32mset(gca,'TickLength',[0 0],'FontSize',12)[m
+[32m+[m[32mbox on[m
+[32m+[m
+[32m+[m[32mif isempty(xL)==0[m
+[32m+[m[32m    set(gca,'XtickLabel',xL2)[m
+[32m+[m[32mend[m
+[32m+[m[32m%-------------------------------------------------------------------------[m
+[32m+[m[32mend %of function[m
+\ No newline at end of file[m
